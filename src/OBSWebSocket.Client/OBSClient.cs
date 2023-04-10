@@ -6,9 +6,10 @@ namespace OBSWebSocket.Client;
 public class ObsClient : IDisposable
 {
     private readonly ObsClientOptions options;
-    private IWebsocketClient? client;
+    private WebsocketClient? client;
+    private bool connected = false;
 
-    public bool Connected => client != null && client.IsRunning && client.IsStarted;
+    public bool Connected => client != null && client.IsRunning && client.IsStarted && connected;
     
     public ObsClient(ObsClientOptions? options = null)
     {
@@ -16,7 +17,7 @@ public class ObsClient : IDisposable
         this.options = options;
     }
 
-    public void Connect()
+    public async Task Connect()
     {
         var url = new Uri($"ws://{options.HostName}:{options.Port}/");
 
@@ -24,26 +25,43 @@ public class ObsClient : IDisposable
         client.Name = "OBS WebSocket";
         client.ReconnectTimeout = TimeSpan.FromSeconds(3);
         client.ErrorReconnectTimeout = TimeSpan.FromSeconds(3);
+        client.DisconnectionHappened.Subscribe(OnDisconnected);
         client.MessageReceived.Subscribe(OnMessageReceived);
         client.ReconnectionHappened.Subscribe(OnReconnected);
 
-        client.Start().Wait();
-        Console.WriteLine("Jet the Hawk");
+        await client.Start();
     }
 
     private void OnReconnected(ReconnectionInfo info)
     {
-        Console.WriteLine("Reconnected");
+        connected = true;
     }
 
     private void OnMessageReceived(ResponseMessage message)
     {
-        Console.WriteLine("Message received");
+        if (message.MessageType == WebSocketMessageType.Binary)
+        {
+            OnBinaryReceived(message.Binary);
+        }
+        else
+        {
+            OnTextReceived(message.Text);
+        }
+    }
+
+    private void OnTextReceived(string text)
+    {
+        Console.WriteLine(text);
+    }
+
+    private void OnBinaryReceived(byte[] data)
+    {
+        Console.WriteLine("[binary]");
     }
 
     private void OnDisconnected(DisconnectionInfo info)
     {
-        Console.WriteLine("Disconnected");
+        connected = false;
     }
 
     private ClientWebSocket ClientFactory()

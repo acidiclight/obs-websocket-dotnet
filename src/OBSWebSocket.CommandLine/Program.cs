@@ -4,11 +4,11 @@ namespace OBSWebSocket.CommandLine;
 
 public class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         using var obs = new ObsClient();
 
-        obs.Connect();
+        await obs.Connect();
 
         if (!obs.Connected)
         {
