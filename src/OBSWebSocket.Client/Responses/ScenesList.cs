@@ -13,5 +13,5 @@ public class ScenesList
     public string? CurrentPreviewSceneName { get; set; }
 
     [JsonPropertyName("scenes")] 
-    public Scene[] Scenes { get; set; } = Array.Empty<Scene>();
+    public SceneWithIndex[] Scenes { get; set; } = Array.Empty<SceneWithIndex>();
 }

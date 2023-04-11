@@ -4,7 +4,6 @@ using System.CommandLine.NamingConventionBinder;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using OBSWebSocket.Client;
 using OBSWebSocket.Client.Responses;
 
 namespace OBSWebSocket.CommandLine;
@@ -45,49 +44,8 @@ public class Program
         rootCommand.AddGlobalOption(passwordOption);
         rootCommand.AddGlobalOption(portOption);
 
-        var listScenesCommand = new Command("list-scenes",
-            "List all available scenes. Each scene name is listed on a new line.");
-        listScenesCommand.SetHandler(async (globalOptions) =>
-        {
-            await ListScenes(globalOptions);
-        }, globalOptionsBinder);
-
-        rootCommand.AddCommand(listScenesCommand);
+        CommandLineInterface.RegisterCommands<ScenesCommands>(rootCommand, globalOptionsBinder);
 
         return await rootCommand.InvokeAsync(args);
-    }
-
-    private static async Task<ObsClient> Connect(GlobalOptions globalOptions)
-    {
-        var obs = new ObsClient(new ObsClientOptions
-        {
-            HostName = globalOptions.HostName,
-            Port = globalOptions.Port,
-            Password = globalOptions.Password
-        });
-
-        await obs.Connect();
-
-        if (!obs.Connected)
-        {
-            Console.Error.Write(
-                "Could not connect to OBS. Please ensure that OBS is running, the OBS WebSocket server is enabled, and that you are properly authenticated.");
-            Environment.Exit(-1);
-            return null;
-        }
-
-        return obs;
-    }
-    
-    private static async Task ListScenes(GlobalOptions globalOptions)
-    {
-        using ObsClient obs = await Connect(globalOptions);
-
-        var sceneList = await obs.GetScenesList();
-
-        foreach (var scene in sceneList.ResponseData.Scenes.OrderBy(x=>x.SceneIndex))
-        {
-            Console.WriteLine(scene.SceneName);
-        }
     }
 }

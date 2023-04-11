@@ -2,6 +2,7 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using OBSWebSocket.Client.DataTypes;
 using OBSWebSocket.Client.Messages;
 using OBSWebSocket.Client.Responses;
 using Websocket.Client;
@@ -26,6 +27,22 @@ public class ObsClient : IDisposable
         this.options = options;
     }
 
+    public async Task SetCurrentProgramScene(string sceneName)
+    {
+        ThrowIfNotConnected();
+
+        await SendRequest(new RequestWithData<Scene>
+        {
+            RequestType = "SetCurrentProgramScene",
+            RequestData = new Scene()
+            {
+                SceneName = sceneName
+            }
+        });
+
+        await WaitForResponse();
+    }
+    
     public async Task<RequestResponse<ScenesList>> GetScenesList()
     {
         ThrowIfNotConnected();
@@ -60,6 +77,13 @@ public class ObsClient : IDisposable
         IObsMessage message = await WaitForMessageWithOpCode(OpCode.RequestResponse);
 
         return message.GetData<RequestResponse<T>>();
+    }
+
+    private async Task WaitForResponse()
+    {
+        await WaitForMessageWithOpCode(OpCode.RequestResponse);
+        
+        // TODO: Error handling.
     }
     
     private async Task SendRequest(Request request)
