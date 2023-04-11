@@ -1,11 +1,11 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using OBSWebSocket.Client;
+using OBSWebSocket.Client.Responses;
 
 namespace OBSWebSocket.CommandLine;
 
@@ -82,37 +82,12 @@ public class Program
     private static async Task ListScenes(GlobalOptions globalOptions)
     {
         using ObsClient obs = await Connect(globalOptions);
-    }
-}
 
-public class GlobalOptions
-{
-    public string HostName { get; set; }
-    public ushort Port { get; set; }
-    public string? Password { get; set; }
-}
+        var sceneList = await obs.GetScenesList();
 
-public class GlobalOptionsBinder : BinderBase<GlobalOptions>
-{
-    private readonly Option<string> hostnameOption;
-    private readonly Option<string?> passwordOption;
-    private readonly Option<ushort> portOption;
-
-    public GlobalOptionsBinder(Option<string> hostnameOption, Option<string?> passwordOption, Option<ushort> portOption)
-    {
-        this.hostnameOption = hostnameOption;
-        this.portOption = portOption;
-        this.passwordOption = passwordOption;
-
-    }
-
-    protected override GlobalOptions GetBoundValue(BindingContext bindingContext)
-    {
-        return new GlobalOptions()
+        foreach (var scene in sceneList.ResponseData.Scenes.OrderBy(x=>x.SceneIndex))
         {
-            HostName = bindingContext.ParseResult.GetValueForOption(hostnameOption) ?? "localhost",
-            Port = bindingContext.ParseResult.GetValueForOption(portOption),
-            Password = bindingContext.ParseResult.GetValueForOption(passwordOption)
-        };
+            Console.WriteLine(scene.SceneName);
+        }
     }
 }

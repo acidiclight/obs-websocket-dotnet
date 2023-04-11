@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using OBSWebSocket.Client.Messages;
+using OBSWebSocket.Client.Responses;
 using Websocket.Client;
 using Websocket.Client.Models;
 
@@ -25,6 +26,18 @@ public class ObsClient : IDisposable
         this.options = options;
     }
 
+    public async Task<RequestResponse<ScenesList>> GetScenesList()
+    {
+        ThrowIfNotConnected();
+
+        await SendRequest(new SimpleRequest
+        {
+            RequestType = "GetSceneList"
+        });
+
+        return await WaitForResponse<ScenesList>();
+    }
+    
     public async Task Connect()
     {
         var url = new Uri($"ws://{options.HostName}:{options.Port}/");
@@ -42,6 +55,27 @@ public class ObsClient : IDisposable
         await PerformConnectionFlow();
     }
 
+    private async Task<RequestResponse<T>> WaitForResponse<T>()
+    {
+        IObsMessage message = await WaitForMessageWithOpCode(OpCode.RequestResponse);
+
+        return message.GetData<RequestResponse<T>>();
+    }
+    
+    private async Task SendRequest(Request request)
+    {
+        await Task.Run(() =>
+        {
+            SendMessage(OpCode.Request, request);
+        });
+    }
+    
+    private void ThrowIfNotConnected()
+    {
+        if (!Connected)
+            throw new InvalidOperationException("Not connected to OBS.");
+    }
+    
     private async Task PerformConnectionFlow()
     {
         Hello? hello = await WaitForData<Hello>(OpCode.Hello);
@@ -175,6 +209,11 @@ public class ObsClient : IDisposable
         OpCode opCode = (OpCode)rawOpCode;
 
         var message = new JsonObsMessage(opCode, dataProperty.Clone());
+
+        // Events are handled differently.
+        if (message.OpCode == OpCode.Event) 
+            ProcessEvent(message);
+        
         messageReceiveQueue.Enqueue(message);
         messagesReceived.Set();
     }
@@ -204,34 +243,13 @@ public class ObsClient : IDisposable
         return nativeClient;
     }
 
-    public void Dispose()
+    private void ProcessEvent(IObsMessage message)
     {
         
     }
-}
-
-public interface IObsMessage
-{
-    OpCode OpCode { get; }
-
-    T? GetData<T>();
-}
-
-public class JsonObsMessage : IObsMessage
-{
-    private JsonElement data;
-    private OpCode opCode;
-
-    public OpCode OpCode => opCode;
     
-    public JsonObsMessage(OpCode opCode, JsonElement data)
+    public void Dispose()
     {
-        this.opCode = opCode;
-        this.data = data;
-    }
-
-    public T? GetData<T>()
-    {
-        return data.Deserialize<T>();
+        
     }
 }

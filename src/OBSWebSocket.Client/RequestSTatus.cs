@@ -1,0 +1,38 @@
+namespace OBSWebSocket.Client;
+
+public enum RequestSTatus
+{
+    Unknown,
+    NoError,
+    Success,
+    MissingRequestType,
+    UnknownRequestType,
+    GenericError,
+    UnsupportedRequestBatchExecutionType,
+    MissingRequestField,
+    MissingRequestData,
+    InvalidRequestField,
+    InvalidRequestFieldType,
+    RequestFieldOutOfRange,
+    RequestFieldEmpty,
+    TooManyRequestFields,
+    OutputRunning,
+    OutputNotRunning,
+    OutputPaused,
+    OutputNotPaused,
+    OutputDisabled,
+    StudioModeActive,
+    StudioModeNotActive,
+    ResourceNotFound,
+    ResourceAlreadyExists,
+    InvalidResourceType,
+    NotEnoughResources,
+    InvalidResourceState,
+    InvalidInputKind,
+    ResourceNotConfigurable,
+    InvalidFilterKind,
+    ResourceCreationFailed,
+    ResourceActionFailed,
+    RequestProcessingFailed,
+    CannotAct
+}
