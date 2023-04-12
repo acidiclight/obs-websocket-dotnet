@@ -28,6 +28,7 @@ As with any command-line tool, for a full list of commands and features, use the
  - Get recording status: `obs-cli recording status`
  - Check if you're recording: `obs-cli recording is-active`
  - Check if recording is paused: `obs-cli recording is-paused`
+ - Send raw JSON payloads from either a command-line argument or standard input: `obs-cli send`
  
 ## TODO
 
@@ -40,7 +41,19 @@ Features that are planned but not implemented:
  - Filters, transitions, sources
  - Configuration of the CLI through a user config file instead of command-line arguments (e.g, setting the port and password of the WebSocket server)
  - Support for binary communication (currently only JSON transport is supported)
- 
+
+## Sending raw JSON
+
+The feature set of OBS WebSockets is so large that it's impossible to cover everything through the command-line interface. Even if it were possible, I'm only one person and it would take serious effort and time on my part to support every possible use case. So, if there's a feature in the CLI that's missing, you don't need to bug me to add it. You can just bypass the CLI altogether and send raw JSON requests to OBS. It will print the responses back in JSON, unless there's a parse error or the CLI can't connect to OBS.
+
+Beyond just being a stop-gap for missing features, this has other use cases too. For example:
+
+ - You may want to interact with a third-party plugin, which would require a custom vendor-specific request. I don't know what that plugin is or how to talk to it, so I can't add it as a CLI command. You're on your own.
+ - You want to send a bunch of requests in a request batch. Instead of doing so with a shell script, you could write a JSON file and pipe it in.
+ - You're contributing to the project and want to send a request and see what the server respons back with. Normally this would require reading the docs and looking at the response through a debugger in cases where the docs do not provide enough information.
+
+Note that you do not have to worry about the initial connection flow (i.e, reading the "hello" message sent by OBS or identifying the client). This is taken care of by the CLI behind the scenes, so just send the JSON request you want to send. You still need to provide the outer object as per the OBS WebSockets protocol documentation, ghowever.
+
 ## Project Structure
 
 This is really just your bog-standard .NET 7 solution, everything important is under `src/`.
