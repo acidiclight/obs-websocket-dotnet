@@ -24,12 +24,34 @@ public sealed class RecordingCommands : CommandLineInterface
         {
             await GetIsActive(globalOptions);
         }, globalOptionsBinder);
+
+        var startCommand = new Command("start", "starts recording");
+        var stopCommand = new Command("stop", "Stops recording");
+        var toggleCommand = new Command("toggle", "Starts or stops recording");
+
+        startCommand.SetHandler(async globalOptions =>
+        {
+            await StartRecording(globalOptions);
+        }, globalOptionsBinder);
+        
+        stopCommand.SetHandler(async globalOptions =>
+        {
+            await StopRecording(globalOptions);
+        }, globalOptionsBinder);
+        
+        toggleCommand.SetHandler(async globalOptions =>
+        {
+            await ToggleRecording(globalOptions);
+        }, globalOptionsBinder);
+        
         
 
         recordingCommands.AddCommand(statusCommand);
         recordingCommands.AddCommand(isActiveCommand);
         recordingCommands.AddCommand(isPausedCommand);
-        
+        recordingCommands.AddCommand(startCommand);
+        recordingCommands.AddCommand(stopCommand);
+        recordingCommands.AddCommand(toggleCommand);
 
         rootCommand.AddCommand(recordingCommands);
     }
@@ -64,6 +86,29 @@ public sealed class RecordingCommands : CommandLineInterface
 
         Console.WriteLine(recordSTatus.ResponseData.OutputPaused);
     }
+
+    private async Task StartRecording(GlobalOptions globalOptions)
+    {
+        using var obs = await ConnectToObs(globalOptions);
+        await obs.StartRecording();
+    }
+    
+    private async Task ToggleRecording(GlobalOptions globalOptions)
+    {
+        using var obs = await ConnectToObs(globalOptions);
+        await obs.ToggleRecording();
+    }
+    
+    private async Task StopRecording(GlobalOptions globalOptions)
+    {
+        using var obs = await ConnectToObs(globalOptions);
+        var savedOutput = await obs.StopRecording();
+        
+        Console.WriteLine(savedOutput.ResponseData.OutputPath);
+    }
+    
+    
+    
     
     
 }

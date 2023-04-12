@@ -19,3 +19,9 @@ public class RecordStatus
     [JsonPropertyName("outputBytes")]
     public int OutputBytes { get; set; }
 }
+
+public class SavedOutput
+{
+    [JsonPropertyName("outputPath")]
+    public string OutputPath { get; set; }
+}
