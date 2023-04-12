@@ -46,7 +46,9 @@ public class Program
 
         CommandLineInterface.RegisterCommands<ScenesCommands>(rootCommand, globalOptionsBinder);
         CommandLineInterface.RegisterCommands<RecordingCommands>(rootCommand, globalOptionsBinder);
-        
+        CommandLineInterface.RegisterCommands<InputsCommands>(rootCommand, globalOptionsBinder);
+        CommandLineInterface.RegisterCommands<SendCommands>(rootCommand, globalOptionsBinder);
+
         return await rootCommand.InvokeAsync(args);
     }
 }

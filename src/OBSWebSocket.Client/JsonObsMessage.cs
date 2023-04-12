@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace OBSWebSocket.Client;
 
@@ -18,5 +19,15 @@ public class JsonObsMessage : IObsMessage
     public T? GetData<T>()
     {
         return data.Deserialize<T>();
+    }
+
+    public JsonObject AsJson()
+    {
+        var jsonObject = new JsonObject();
+
+        jsonObject.Add("op", (int)OpCode);
+        jsonObject.Add("d", JsonObject.Create(data));
+        
+        return jsonObject;
     }
 }

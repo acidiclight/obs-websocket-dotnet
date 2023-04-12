@@ -66,6 +66,22 @@ public class ObsClient : IDisposable
 
         await WaitForResponse();
     }
+
+    public async Task<RequestResponse<InputList>> GetInputList(string? inputKind = null)
+    {
+        ThrowIfNotConnected();
+
+        await SendRequest(new RequestWithData<InputListRequest>
+        {
+            RequestType = "GetInputList",
+            RequestData = new InputListRequest
+            {
+                InputKind = inputKind
+            }
+        });
+
+        return await WaitForResponse<InputList>();
+    }
     
     public async Task<RequestResponse<SavedOutput>> StopRecording()
     {
@@ -360,4 +376,16 @@ public class ObsClient : IDisposable
     {
         
     }
+
+    public async Task<JsonObject> SendRaw(JsonObject json)
+    {
+        ThrowIfNotConnected();
+        
+        client?.Send(json.ToString());
+
+        var message = await WaitForMessage();
+
+        return message.AsJson();
+    }
+    
 }
