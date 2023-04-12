@@ -79,6 +79,42 @@ public class ObsClient : IDisposable
         return await WaitForResponse<SavedOutput>();
     }
 
+    public async Task ToggleRecordPause()
+    {
+        ThrowIfNotConnected();
+        
+        await SendRequest(new SimpleRequest
+        {
+            RequestType = "ToggleRecordPause"
+        });
+
+        await WaitForResponse();
+    }
+
+    public async Task PauseRecording()
+    {
+        ThrowIfNotConnected();
+        
+        await SendRequest(new SimpleRequest
+        {
+            RequestType = "PauseRecord"
+        });
+
+        await WaitForResponse();
+    }
+    
+    public async Task ResumeRecording()
+    {
+        ThrowIfNotConnected();
+        
+        await SendRequest(new SimpleRequest
+        {
+            RequestType = "ResumeRecord"
+        });
+
+        await WaitForResponse();
+    }
+    
     public async Task<RequestResponse<ScenesList>> GetScenesList()
     {
         ThrowIfNotConnected();

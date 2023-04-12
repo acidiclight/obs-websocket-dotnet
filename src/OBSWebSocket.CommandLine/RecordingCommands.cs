@@ -43,15 +43,37 @@ public sealed class RecordingCommands : CommandLineInterface
         {
             await ToggleRecording(globalOptions);
         }, globalOptionsBinder);
-        
-        
 
+        var pauseCommand = new Command("pause", "Pauses recording");
+        var resumeCommand = new Command("resume", "Resumes recording");
+        var togglePauseCommand = new Command("toggle-pause", "Pauses or resumes recording");
+
+        pauseCommand.SetHandler(async globalOptions =>
+        {
+            await PauseRecording(globalOptions);
+        }, globalOptionsBinder);
+        
+        resumeCommand.SetHandler(async globalOptions =>
+        {
+            await ResumeRecording(globalOptions);
+        }, globalOptionsBinder);
+        
+        togglePauseCommand.SetHandler(async globalOptions =>
+        {
+            await ToggleRecordPause(globalOptions);
+        }, globalOptionsBinder);
+        
+        
+        
         recordingCommands.AddCommand(statusCommand);
         recordingCommands.AddCommand(isActiveCommand);
         recordingCommands.AddCommand(isPausedCommand);
         recordingCommands.AddCommand(startCommand);
         recordingCommands.AddCommand(stopCommand);
         recordingCommands.AddCommand(toggleCommand);
+        recordingCommands.AddCommand(pauseCommand);
+        recordingCommands.AddCommand(resumeCommand);
+        recordingCommands.AddCommand(togglePauseCommand);
 
         rootCommand.AddCommand(recordingCommands);
     }
@@ -106,7 +128,24 @@ public sealed class RecordingCommands : CommandLineInterface
         
         Console.WriteLine(savedOutput.ResponseData.OutputPath);
     }
+
+    private async Task PauseRecording(GlobalOptions globalOptions)
+    {
+        using var obs = await ConnectToObs(globalOptions);
+        await obs.PauseRecording();
+    }
     
+    private async Task ResumeRecording(GlobalOptions globalOptions)
+    {
+        using var obs = await ConnectToObs(globalOptions);
+        await obs.ResumeRecording();
+    }
+    
+    private async Task ToggleRecordPause(GlobalOptions globalOptions)
+    {
+        using var obs = await ConnectToObs(globalOptions);
+        await obs.ToggleRecordPause();
+    }
     
     
     
