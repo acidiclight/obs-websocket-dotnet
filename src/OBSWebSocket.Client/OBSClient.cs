@@ -54,6 +54,18 @@ public class ObsClient : IDisposable
 
         return await WaitForResponse<ScenesList>();
     }
+
+    public async Task<RequestResponse<RecordStatus>> GetRecordStatus()
+    {
+        ThrowIfNotConnected();
+
+        await SendRequest(new SimpleRequest
+        {
+            RequestType = "GetRecordStatus"
+        });
+
+        return await WaitForResponse<RecordStatus>();
+    }
     
     public async Task Connect()
     {

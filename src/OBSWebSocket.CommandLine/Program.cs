@@ -45,7 +45,8 @@ public class Program
         rootCommand.AddGlobalOption(portOption);
 
         CommandLineInterface.RegisterCommands<ScenesCommands>(rootCommand, globalOptionsBinder);
-
+        CommandLineInterface.RegisterCommands<RecordingCommands>(rootCommand, globalOptionsBinder);
+        
         return await rootCommand.InvokeAsync(args);
     }
 }

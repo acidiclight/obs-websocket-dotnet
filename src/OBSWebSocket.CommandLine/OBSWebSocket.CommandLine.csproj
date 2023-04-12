@@ -5,6 +5,9 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>obs-cli</AssemblyName>
+    <Company>acidic light</Company>
+    <Product>obs-cli</Product>
   </PropertyGroup>
 
   <ItemGroup>
