@@ -9,6 +9,7 @@ public class SendCommands : CommandLineInterface
     {
         var dataArgument = new Argument<string>("json", () => string.Empty,
             "Specifies the JSON data to send. If nothing is supplied, the data will be read from standard input instead.");
+            
         var sendCommand = new Command("send", "Send raw JSON requests to OBS and print the JSON response.");
 
         sendCommand.AddArgument(dataArgument);
